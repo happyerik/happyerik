@@ -1,12 +1,13 @@
 ---
 const { sideBarActiveItemID } = Astro.props;
 const activeClass = "bg-base-300"; // 如需主色调可替换为 `active` 类
+const base = import.meta.env.BASE_URL;
 ---
 
 <ul class="menu grow shrink menu-md overflow-y-auto">
-    <li><a class="py-3 text-base" id="home" href="/">首页</a></li>
-    <li><a class="py-3 text-base" id="projects" href="/projects">项目</a></li>
-    <li><a class="py-3 text-base" id="blog" href="/blog/">博客</a></li>
+    <li><a class="py-3 text-base" id="home" href={`${base}`}>首页</a></li>
+    <li><a class="py-3 text-base" id="projects" href={`${base}projects`}>项目</a></li>
+    <li><a class="py-3 text-base" id="blog" href={`${base}blog/`}>博客</a></li>
 </ul>
 
 <script define:vars={{ sideBarActiveItemID: sideBarActiveItemID, activeClass: activeClass }}>
