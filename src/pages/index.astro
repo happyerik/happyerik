@@ -7,7 +7,7 @@ import createSlug from "../lib/createSlug"
 const posts = (await getCollection("blog")).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 const last_posts = posts.slice(0, 3);
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <BaseLayout sideBarActiveItemID="home">
@@ -15,7 +15,7 @@ const base = import.meta.env.BASE_URL;
     <!-- 头像 -->
     <div class="avatar mb-6">
       <div class="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-        <img width={300} height={300} src={`${import.meta.env.BASE_URL}/profile.png`} alt="头像" />
+        <img width={300} height={300} src={`${base}profile.png`} alt="头像" />
       </div>
     </div>
 

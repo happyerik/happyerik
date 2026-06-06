@@ -9,7 +9,7 @@ export interface Props {
 	ogType?: string;
 }
 
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const { title, description, image = `${base}social_img.webp`, ogType = 'website' } = Astro.props;
 ---
 

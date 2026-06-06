@@ -11,7 +11,7 @@ const { sideBarActiveItemID } = Astro.props;
       <a href="/">
         <div class="avatar transition ease-in-out hover:scale-[102%] block m-auto">
           <div class="w-[8.5rem]">
-            <img class="mask mask-circle" width={300} height={300} src={`${import.meta.env.BASE_URL}/profile.png`} alt="头像" />
+            <img class="mask mask-circle" width={300} height={300} src={`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}profile.png`} alt="头像" />
           </div>
         </div>
       </a>
