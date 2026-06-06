@@ -1,6 +1,5 @@
 ---
-// Import the global.css file here so that it is included on
-// all pages through the use of the <BaseHead /> component.
+// 在此导入 global.css 文件，使其通过 <BaseHead /> 组件包含在所有页面中。
 import '../styles/global.css';
 
 export interface Props {
@@ -13,18 +12,18 @@ export interface Props {
 const { title, description, image = '/social_img.webp', ogType = 'website' } = Astro.props;
 ---
 
-<!-- Global Metadata -->
+<!-- 全局元数据 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <meta name="generator" content={Astro.generator} />
 
-<!-- Primary Meta Tags -->
+<!-- 主要元标签 -->
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
 
-<!-- Open Graph / Facebook -->
+<!-- 开放图谱 / Facebook -->
 <meta property="og:type" content={ogType} />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:title" content={title} />

@@ -1,19 +1,19 @@
-// Adapted from https://equk.co.uk/2023/02/02/generating-slug-from-title-in-astro/
+// 改编自 https://equk.co.uk/2023/02/02/generating-slug-from-title-in-astro/
 
 import { GENERATE_SLUG_FROM_TITLE } from '../config'
 
 export default function (title: string, staticSlug: string) {
   return (
     !GENERATE_SLUG_FROM_TITLE ? staticSlug : title
-      // remove leading & trailing whitespace
+      // 去除首尾空白
       .trim()
-      // output lowercase
+      // 转为小写
       .toLowerCase()
-      // replace spaces
+      // 替换空格
       .replace(/\s+/g, '-')
-      // remove special characters
+      // 移除特殊字符
       .replace(/[^\w-]/g, '')
-      // remove leading & trailing separtors
+      // 移除首尾分隔符
       .replace(/^-+|-+$/g, '')
   )
 }

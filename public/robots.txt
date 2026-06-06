@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://astrofy-template.netlify.app/sitemap-index.xml
+# TODO: Update with your actual domain before deploying
+# Sitemap: https://your-domain.com/sitemap-index.xml
