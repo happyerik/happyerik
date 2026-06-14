@@ -41,4 +41,41 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       <slot />
     </article>
   </main>
+
+  <script is:inline type="module">
+    const mermaidBlocks = document.querySelectorAll(
+      'pre[data-language="mermaid"], pre > code.language-mermaid'
+    );
+
+    if (mermaidBlocks.length > 0) {
+      const { default: mermaid } = await import("https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs");
+
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        theme: document.documentElement.dataset.theme === "dark" ? "dark" : "neutral",
+      });
+
+      let index = 0;
+
+      for (const block of mermaidBlocks) {
+        const pre = block.tagName === "PRE" ? block : block.parentElement;
+        const source = pre.querySelector("code")?.textContent ?? pre.textContent ?? "";
+        const container = document.createElement("div");
+        container.className = "mermaid my-6 overflow-x-auto";
+
+        try {
+          const { svg, bindFunctions } = await mermaid.render(`mermaid-${index}`, source);
+          container.innerHTML = svg;
+          bindFunctions?.(container);
+          pre.replaceWith(container);
+        } catch (error) {
+          pre.classList.add("mermaid-error");
+          console.error("Failed to render Mermaid diagram", error);
+        }
+
+        index += 1;
+      }
+    }
+  </script>
 </BaseLayout>
