@@ -6,7 +6,7 @@ badge: ""
 tags: ["WWDC", "Apple", "3D", "RealityKit", "visionOS"]
 ---
 
-![Pasted image 20260613094750.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613094750.png)
+![Pasted image 20260613094750.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613094750.webp)
 
 
 ## TL, DR
@@ -148,7 +148,7 @@ flowchart BT
 
 ## visionOS
 *XR OS*
-![Pasted image 20260614200630.png](/happyerik/figures/WWDC26/Pasted%20image%2020260614200630.png)
+![Pasted image 20260614200630.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260614200630.webp)
 ### 更多构建App的方式
 
 | 路径                            | 适合对象                | 核心方式                                                                          |
@@ -189,22 +189,22 @@ flowchart BT
 |                                                           |                                            |
 ### Animation Graph
 用于控制角色在运行时如何播放、切换、混合动画。
-![Pasted image 20260613214909.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613214909.png)
-![Pasted image 20260613214957.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613214957.png)
+![Pasted image 20260613214909.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613214909.webp)
+![Pasted image 20260613214957.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613214957.webp)
 ### Behavior Tree
 Animation Graph 解决的是“角色怎么动得自然”，Behavior Tree 解决的是角色行为流程。
-![Pasted image 20260613215023.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613215023.png)
+![Pasted image 20260613215023.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613215023.webp)
 
 ### Script Graph
 定义场景中的交互和功能逻辑，基于event-driven，也就是由事件触发执行。
-![Pasted image 20260613215227.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613215227.png)
+![Pasted image 20260613215227.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613215227.webp)
 
 ### Navigation Mesh
 让角色能够从一个点走到另一个点，并自动绕开障碍。
 
 ### Compute Graph
 类似于 VFX Graph，实现GPU 驱动的粒子模拟。
-![Pasted image 20260613215313.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613215313.png)
+![Pasted image 20260613215313.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613215313.webp)
 
 ### Shader Graph
 进一步补强，增加Subsurface Scattering，RealityKit PBR Surface 2，Hair Surface，Portal Surface，Portal Geometry Modifier。这些材质后续会花时间研究一下，和我们提供的SSS，Hair做一个横向对比，取长补短。
@@ -216,7 +216,7 @@ Animation Graph 解决的是“角色怎么动得自然”，Behavior Tree 解�
 
 ## RealityKit
 *官方 3D 引擎 on iOS, iPadOS, MacOS, visionOS
-![Pasted image 20260613214621.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613214621.png)
+![Pasted image 20260613214621.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613214621.webp)
 
 | 功能                          | 作用                             |
 | --------------------------- | ------------------------------ |
@@ -228,20 +228,20 @@ Animation Graph 解决的是“角色怎么动得自然”，Behavior Tree 解�
 
 ### 渲染
 1. Lightmaps，提供漫反射光照计算的离线烘焙能力，
-![Pasted image 20260613212501.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613212501.png)
+![Pasted image 20260613212501.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613212501.webp)
 2. Soft Shadows，新增软阴影 & CSM，
-![Pasted image 20260613212312.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613212312.png)
+![Pasted image 20260613212312.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613212312.webp)
 3. Projective Textures，类似于 Unity Light Cookie，提供光照强度的像素级控制，
-![Pasted image 20260613212420.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613212420.png)
+![Pasted image 20260613212420.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613212420.webp)
 4. Physical Space Lighting，开启后虚拟 spot light / point light 可以与现实空间的 scene understanding mesh 交互（很赞！），*visionOS 独占*，
-![Pasted image 20260613212609.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613212609.png)
+![Pasted image 20260613212609.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613212609.webp)
 #### 导航
 新增Navigation Mesh，也支持off-mesh connection，补充了角色能在空间中自主行动的基础设施。
-![Pasted image 20260613212816.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613212816.png)
-![Pasted image 20260613212748.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613212748.png)
+![Pasted image 20260613212816.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613212816.webp)
+![Pasted image 20260613212748.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613212748.webp)
 ### 布料模拟
 新增布料模拟，支持必要的 Body Collisions，Pin Constraints，物理属性设置。
-![Pasted image 20260613213821.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613213821.png)
+![Pasted image 20260613213821.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613213821.webp)
 
 | 组件                       | 作用                                   |
 | ------------------------ | ------------------------------------ |
@@ -252,16 +252,16 @@ Animation Graph 解决的是“角色怎么动得自然”，Behavior Tree 解�
 | Collider material        | 定义碰撞体材料属性                            |
 
 ![录屏2026-06-13 21.36.24_5-20s_1080p.webp](/happyerik/figures/WWDC26/录屏2026-06-13%2021.36.24_5-20s_1080p.webp)
-![Pasted image 20260613213856.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613213856.png)
-![Pasted image 20260613213918.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613213918.png)
+![Pasted image 20260613213856.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613213856.webp)
+![Pasted image 20260613213918.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613213918.webp)
 
 ### 性能
 
 新增Mesh LOD，通过 LevelOfDetailComponent 切换，Camera distance/Screen area两种模式。
-![Pasted image 20260613214008.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613214008.png)
+![Pasted image 20260613214008.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613214008.webp)
 
 支持Thermal State 监控，监听 thermalStateDidChange，根据当前设备状态进行降级，上面新增的效果都需要算力，需要动态开关。
-![Pasted image 20260613214108.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613214108.png)
+![Pasted image 20260613214108.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613214108.webp)
 
 ### 3D Gaussian Splats
 
@@ -285,8 +285,8 @@ attach to Entity                         --- Node
 RealityKit 渲染                           --- AceNNR
 
 单个 component 限制 3DGS 数目为～20W。
-![Pasted image 20260613214133.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613214133.png)
-![Pasted image 20260613214210.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613214210.png)
+![Pasted image 20260613214133.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613214133.webp)
+![Pasted image 20260613214210.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613214210.webp)
 
 ### 沉浸式音频, *visionOS独占*
 支持自定义Reverb Mesh，提供和真实环境更贴合的空间混响计算。
@@ -301,7 +301,7 @@ RealityKit 渲染                           --- AceNNR
     ↓
 attach to entity
 
-![Pasted image 20260613214416.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613214416.png)
+![Pasted image 20260613214416.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613214416.webp)
 
 ### 思考
 1. RealityKit 支持了 3DGS 的渲染，也很自然，毕竟这块的基础能力早已具备，只是什么对外暴露能力而已。
@@ -322,7 +322,7 @@ M5：GPU neural accelerators、**2x FP16/complex ALU**、**2x geometry throughpu
 
 ### 神经渲染
 关键趋势：很多传统依赖解析方法的渲染技术，正在被机器学习方法替代或增强。
-![Pasted image 20260613225837.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613225837.png)
+![Pasted image 20260613225837.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613225837.webp)
 
 | 层次  | 技术                              | 适合场景                              | 抽象程度    |
 | --- | ------------------------------- | --------------------------------- | ------- |
@@ -339,27 +339,27 @@ M5：GPU neural accelerators、**2x FP16/complex ALU**、**2x geometry throughpu
 4. MetalFX Frame Interpolation，插帧，
 
 MetalFX Denoising为例，框架如下：
-![Pasted image 20260613225925.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613225925.png)
-![Pasted image 20260613230010.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613230010.png)
-![Pasted image 20260613230025.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613230025.png)
+![Pasted image 20260613225925.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613225925.webp)
+![Pasted image 20260613230010.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613230010.webp)
+![Pasted image 20260613230025.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613230025.webp)
 
 #### Metal 4 ML Command Encoder
 把自定义模型放进 command buffer，允许开发者把一个预训练模型直接部署到 Metal command buffer 中，与 render / compute 工作在同一帧、同一 command buffer 中调度。
 
 比如研发Neural Tone Mapping，用一个 neural network 学习整个 color transformation，基于HDRNet架构（这块对我们现在的生成模型渲染的校色也有参考意义，可以深入研究一下）。
-![Pasted image 20260613230200.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613230200.png)
-![Pasted image 20260613230213.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613230213.png)
-![Pasted image 20260613230231.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613230231.png)
+![Pasted image 20260613230200.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613230200.webp)
+![Pasted image 20260613230213.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613230213.webp)
+![Pasted image 20260613230231.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613230231.webp)
 
 #### TensorOps API
 允许开发者在 shader 里直接构建小型神经网络，例如小 MLP。
 
 Sky Illumination Model适合用这个方式去做。传统做法是预计算 Skybox 的 irradiance（如 SH），运行时采样，只能处理静态天空盒。动态下，往往需要进行动态积分计算，考虑到Diffuse光照通常比较平滑，可以用一个小网络学习这个可变光照函数，即输入 float3 -> (3 - 4 - 4 - 3 MLP) -> 输出 float3。
-![Pasted image 20260613230317.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613230317.png)
-![Pasted image 20260613230331.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613230331.png)
+![Pasted image 20260613230317.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613230317.webp)
+![Pasted image 20260613230331.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613230331.webp)
 
 比较有意思的是，这个 MLP 可以在线学习，采样少数方向，更新 MLP 网络，比半球积分划算。
-![Pasted image 20260613230413.png](/happyerik/figures/WWDC26/Pasted%20image%2020260613230413.png)
+![Pasted image 20260613230413.webp](/happyerik/figures/WWDC26/Pasted%20image%2020260613230413.webp)
 
 ## Intelligence 
 
