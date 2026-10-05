@@ -26,7 +26,7 @@ The site is served at `https://happyerik.github.io/happyerik` — `astro.config.
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ```
 
-then building hrefs as `` `${base}blog/` `` etc. See `BaseHead.astro`, `Header.astro`, `SideBar.astro`, `SideBarMenu.astro`, `404.astro`, `index.astro`, `PostLayout.astro`, and the blog route files for existing usages. Forgetting this prefix is the most common way to silently break links/images in production while they still work in `pnpm dev`.
+then building hrefs as `` `${base}blog/` `` etc. See `BaseHead.astro`, `Header.astro`, `PostList.astro`, `TagBar.astro`, `404.astro`, `index.astro`, `PostLayout.astro`, and the blog route files for existing usages. Forgetting this prefix is the most common way to silently break links/images in production while they still work in `pnpm dev`.
 
 There is no `@astrojs/sitemap` integration configured currently (despite `public/robots.txt` having a commented-out `Sitemap:` line and a domain TODO) — sitemap generation was removed from this fork.
 
@@ -50,29 +50,39 @@ File-based routing under `src/pages/`: `index.astro`, `projects.astro`, `404.ast
 
 ### Layout Hierarchy
 
-- `BaseLayout.astro` — root layout: HTML skeleton, conditional `<ViewTransitions />` (gated by `TRANSITION_API` in `src/config.ts`), DaisyUI drawer-based responsive sidebar, header, footer.
-- `PostLayout.astro` — wraps blog posts in `BaseLayout` with hero image, title, date, tags, and prose styling.
+- `BaseLayout.astro` — root layout: HTML skeleton, conditional `<ViewTransitions />` (gated by `TRANSITION_API` in `src/config.ts`), sticky top `Header` (nav + light/dark toggle), a single centered `max-w-3xl` column. There is no sidebar/drawer and no footer.
+- `PostLayout.astro` — wraps blog posts in `BaseLayout` with title, date, reading time, tags, optional hero image, `prose prose-cjk` body, and prev/next post links (computed in `blog/[slug].astro`).
+
+Shared pieces: `src/lib/posts.ts` (`getSortedPosts()`, `readingMinutes()`), `PostList.astro` (date-led list, optionally grouped by year), `TagBar.astro` (tag filter chips with counts), `Pagination.astro`, `ProjectCard.astro`. Project entries live in `src/data/projects.ts` and feed both the home page and `projects.astro`.
 
 There is no `StoreItemLayout.astro` in this fork.
 
-**Active sidebar item**: Pages pass `sideBarActiveItemID` to `BaseLayout`, forwarded to `SideBarMenu`. Nav only has three items today (`home`, `projects`, `blog` — see `SideBarMenu.astro`); the item with a matching `id` gets `bg-base-300` applied via a client-side script using `define:vars`.
+**Active nav item**: Pages pass `sideBarActiveItemID` (name kept from the old sidebar) to `BaseLayout`, forwarded to `Header` as `activeItemID`. Nav items (`home`, `blog`, `projects`) are defined in `Header.astro` and the active one is highlighted at build time.
 
 ### Configuration
 
-- `src/config.ts` — `SITE_TITLE`, `SITE_DESCRIPTION`, `GENERATE_SLUG_FROM_TITLE`, `TRANSITION_API`.
+- `src/config.ts` — `SITE_TITLE`, `SITE_DESCRIPTION`, `GENERATE_SLUG_FROM_TITLE`, `TRANSITION_API`, and `GISCUS` (comment settings; `Comments.astro` renders nothing until `categoryId` is filled in). Comments are giscus, stored in this repo's GitHub Discussions, mapped by pathname — so changing a post's title (and thus its slug) detaches its existing comments.
 - `astro.config.mjs` — `site`, `base` (see Deployment above), integrations: `mdx()`, `tailwind()` only.
-- `tailwind.config.cjs` — DaisyUI with `themes: true`, `darkTheme: "dark"`, `@tailwindcss/typography`.
+- `tailwind.config.cjs` — two custom DaisyUI themes (`paper` light, `ink` dark), CJK-friendly system `fontFamily`, `@tailwindcss/typography`.
 - `tsconfig.json` — path aliases: `@components/*` → `src/components/*`, `@layouts/*` → `src/layouts/*` (used inconsistently; relative imports are also common).
 
 ### Styling & Theming
 
 - TailwindCSS utility classes throughout; DaisyUI component classes (`btn`, `badge`, `drawer`, `card`, etc.).
-- Theme is set via `data-theme="lofi"` on `<html>` in `BaseLayout.astro`. Change it there to switch the DaisyUI theme site-wide.
+- Theme is `data-theme="paper"` or `"ink"` on `<html>`. An inline script in `BaseLayout.astro` picks it from `localStorage.theme`, else `prefers-color-scheme`, and re-applies it on `astro:before-swap` (ViewTransitions). Edit colors in `tailwind.config.cjs`. Anything theme-dependent in JS (e.g. Mermaid in `PostLayout.astro`) checks for `"ink"`.
+- Article typography tweaks for Chinese (line height, links, blockquotes, inline code) live under `.prose-cjk` in `src/styles/global.css`.
 - Colors use DaisyUI semantic variables (`bg-base-100`, `bg-base-200`, `text-base-content`).
 
 ### Images
 
 Use `astro:assets` `<Image />` with explicit `width`, `height`, and `format="webp"`. Sharp is the configured image service. Blog `heroImage` is validated through the content collection's `image()` helper, so it must resolve to a real image relative to the content file.
+
+### Motion
+
+- Page transitions: `BaseLayout.astro` gives `<main>` a custom `transition:animate` (fade-out / fade-up keyframes in `global.css`); the header has `transition:animate="none"` so it stays still.
+- Because of ViewTransitions, bundled `<script>`s run only once and identical inline scripts are not re-run on navigation — per-page init must hang off `astro:page-load` (see the reading progress bar in `PostLayout.astro`, `Comments.astro`, and the home page point cloud).
+- `.reveal` (+ `style="--i: n"`) staggers entrance; `.link-sweep` is the hover underline. All motion is disabled under `prefers-reduced-motion`.
+- Home avatar is a WebGL point cloud sampled from `public/chali.jpg` (`src/scripts/catCloud.ts`); it falls back to the static `<img>` without WebGL or with reduced motion, pauses off-screen, and is destroyed on `astro:before-swap`.
 
 ### RSS
 

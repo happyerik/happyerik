@@ -1,74 +1,101 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import HorizontalCard from "../components/HorizontalCard.astro";
-import { getCollection } from "astro:content";
-import createSlug from "../lib/createSlug"
+import PostList from "../components/PostList.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { getSortedPosts } from "../lib/posts";
+import { projects } from "../data/projects";
 
-const posts = (await getCollection("blog")).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-
-const last_posts = posts.slice(0, 3);
+const posts = await getSortedPosts();
+const latestPosts = posts.slice(0, 5);
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <BaseLayout sideBarActiveItemID="home">
-  <div class="flex flex-col items-center text-center py-10">
-    <!-- 头像 -->
-    <div class="avatar mb-6">
-      <div class="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-        <img width={300} height={300} src={`${base}chali.jpg`} alt="头像" />
-      </div>
+  <!-- 个人简介：左文右图（手机上也保持左右排版），右侧是由猫咪照片生成的点云（不支持 WebGL 或偏好减少动效时显示静态照片） -->
+  <section class="mb-14 flex items-center justify-between gap-3 sm:gap-8">
+    <div class="min-w-0">
+      <h1 class="reveal text-3xl font-bold tracking-tight sm:text-4xl">张勇</h1>
+      <p class="reveal mt-2 text-base text-base-content/70 sm:mt-3 sm:text-lg" style="--i: 1">
+        开发者，3D x AI
+      </p>
+      <a
+        href="mailto:zhangyong1102@gmail.com"
+        class="reveal mt-2 inline-flex items-center gap-1.5 break-all text-xs text-base-content/45 sm:mt-3 sm:text-sm transition-colors hover:text-primary"
+        style="--i: 2"
+      >
+        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+        zhangyong1102@gmail.com
+      </a>
     </div>
 
-    <!-- 名字 -->
-    <h1 class="text-4xl md:text-5xl font-extrabold mb-3 tracking-tight">张勇</h1>
+    <div class="relative -mr-2 h-[136px] w-[136px] shrink-0 sm:mr-0 sm:h-[260px] sm:w-[260px]" data-photo={`${base}chali.jpg`} id="cat-cloud-wrap">
+      <img
+        id="cat-photo"
+        width={300}
+        height={300}
+        src={`${base}chali.jpg`}
+        alt="头像：一只猫"
+        class="absolute inset-[9%] h-[82%] w-[82%] rounded-full object-cover ring-1 ring-base-content/10 transition-opacity duration-700"
+      />
+      <canvas id="cat-cloud" class="absolute inset-0 h-full w-full touch-pan-y opacity-0 transition-opacity duration-500" aria-hidden="true"></canvas>
+    </div>
+  </section>
 
-    <!-- 职位 -->
-    <div class="badge badge-primary text-lg px-4 py-3 mb-5">软件工程师</div>
-
-    <!-- 简介 -->
-    <p class="text-base-content/80 text-lg max-w-md leading-relaxed mb-6">
-      喜欢新奇和有生命力的东西。
-    </p>
-
-    <!-- 邮箱 -->
-    <a
-      href="mailto:zhangyong1102@gmail.com"
-      class="btn btn-outline btn-sm gap-2 rounded-full"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-      zhangyong1102@gmail.com
-    </a>
-  </div>
-
-  <!-- 分割线 -->
-  <div class="divider my-2"></div>
-
-  <!-- 最新博客 -->
+  <!-- 最新文章 -->
   {
-    last_posts.length > 0 && (
-      <>
-        <div class="mb-5">
-          <div class="text-2xl w-full font-bold">最新博客</div>
+    latestPosts.length > 0 && (
+      <section class="mb-16">
+        <div class="mb-3 flex items-baseline justify-between">
+          <h2 class="text-lg font-semibold">最新文章</h2>
+          <a href={`${base}blog/`} class="text-sm text-base-content/50 transition-colors hover:text-primary">全部文章 →</a>
         </div>
-
-        {
-          last_posts.map((post) => (
-            <>
-              <HorizontalCard
-                title={post.data.title}
-                img={post.data.heroImage}
-                desc={post.data.description}
-                url={`${base}blog/` + createSlug(post.data.title, post.slug)}
-                target="_self"
-                badge={post.data.badge}
-              />
-              <div class="divider my-0" />
-            </>
-          ))
-        }
-      </>
+        <PostList posts={latestPosts} />
+      </section>
     )
   }
+
+  <!-- 项目 -->
+  <section>
+    <div class="mb-4 flex items-baseline justify-between">
+      <h2 class="text-lg font-semibold">项目</h2>
+      <a href={`${base}projects`} class="text-sm text-base-content/50 transition-colors hover:text-primary">全部项目 →</a>
+    </div>
+    <div class="grid gap-3">
+      {projects.map((p, i) => <div class="reveal" style={`--i: ${i + 5}`}><ProjectCard {...p} /></div>)}
+    </div>
+  </section>
+
+  <script>
+    import { mountCatCloud } from "../scripts/catCloud";
+
+    let destroy: (() => void) | null = null;
+    let generation = 0; // 异步加载期间若已换页，丢弃这次初始化
+
+    document.addEventListener("astro:page-load", async () => {
+      const wrap = document.getElementById("cat-cloud-wrap");
+      const canvas = document.getElementById("cat-cloud") as HTMLCanvasElement | null;
+      const photo = document.getElementById("cat-photo");
+      if (!wrap || !canvas || !photo) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const current = ++generation;
+      try {
+        const dispose = await mountCatCloud(canvas, wrap.dataset.photo!, () => {
+          canvas.style.opacity = "1";
+          photo.style.opacity = "0";
+        });
+        if (current === generation) destroy = dispose;
+        else dispose?.();
+      } catch (err) {
+        console.error("点云初始化失败，保留静态头像", err);
+      }
+    });
+
+    // 换页离开首页时释放 WebGL 资源
+    document.addEventListener("astro:before-swap", () => {
+      generation++;
+      destroy?.();
+      destroy = null;
+    });
+  </script>
 </BaseLayout>

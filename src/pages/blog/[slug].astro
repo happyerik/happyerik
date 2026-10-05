@@ -1,22 +1,29 @@
 ---
-import { CollectionEntry, getCollection } from "astro:content";
+import { type CollectionEntry } from "astro:content";
 import { BlogSchema } from "../../content/config";
 import PostLayout from "../../layouts/PostLayout.astro";
 import createSlug from "../../lib/createSlug"
+import { getSortedPosts, readingMinutes } from "../../lib/posts";
 
 export async function getStaticPaths() {
-  const postEntries = await getCollection("blog");
-  return postEntries.map((entry) => ({
+  const postEntries = await getSortedPosts();
+  const toLink = (entry?: CollectionEntry<"blog">) =>
+    entry && { title: entry.data.title, slug: createSlug(entry.data.title, entry.slug) };
+
+  // 列表按时间倒序：索引更小的是更新的文章
+  return postEntries.map((entry, i) => ({
     params: { slug: createSlug(entry.data.title, entry.slug) },
-    props: { entry },
+    props: { entry, newer: toLink(postEntries[i - 1]), older: toLink(postEntries[i + 1]) },
   }));
 }
 
 interface Props {
   entry: CollectionEntry<"blog">;
+  newer?: { title: string; slug: string };
+  older?: { title: string; slug: string };
 }
 
-const { entry } = Astro.props;
+const { entry, newer, older } = Astro.props;
 const post: BlogSchema = entry.data;
 const { Content } = await entry.render();
 ---
@@ -29,6 +36,9 @@ const { Content } = await entry.render();
   updatedDate={post.updatedDate}
   badge={post.badge}
   tags={post.tags}
+  minutes={readingMinutes(entry.body)}
+  newer={newer}
+  older={older}
 >
   <Content />
 </PostLayout>

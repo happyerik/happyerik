@@ -1,0 +1,58 @@
+---
+import dayjs from "dayjs";
+import createSlug from "../lib/createSlug";
+import type { BlogPost } from "../lib/posts";
+
+interface Props {
+  posts: BlogPost[];
+  /** 按年份分组显示（博客列表页）；首页的精简列表不分组 */
+  groupByYear?: boolean;
+}
+
+const { posts, groupByYear = false } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+
+const groups: { year: string | null; posts: BlogPost[] }[] = [];
+for (const post of posts) {
+  const year = groupByYear ? String(post.data.pubDate.getFullYear()) : null;
+  const last = groups[groups.length - 1];
+  if (last && last.year === year) last.posts.push(post);
+  else groups.push({ year, posts: [post] });
+}
+---
+
+{
+  groups.map((group) => (
+    <section class="mb-8 last:mb-0">
+      {group.year && (
+        <h2 class="mb-2 text-sm font-semibold tabular-nums tracking-wide text-base-content/40">{group.year}</h2>
+      )}
+      <ul class="-mx-3">
+        {group.posts.map((post) => (
+          <li class="reveal" style={`--i: ${posts.indexOf(post)}`}>
+            <a
+              href={`${base}blog/${createSlug(post.data.title, post.slug)}`}
+              class="group flex flex-col gap-1 rounded-lg px-3 py-3.5 transition-colors hover:bg-base-200 sm:flex-row sm:gap-6"
+            >
+              <time
+                datetime={post.data.pubDate.toISOString()}
+                class="shrink-0 pt-0.5 text-sm tabular-nums text-base-content/45 sm:w-24"
+              >
+                {dayjs(post.data.pubDate).format(groupByYear ? "MM-DD" : "YYYY-MM-DD")}
+              </time>
+              <div class="min-w-0">
+                <h3 class="font-medium leading-snug transition-colors group-hover:text-primary">
+                  <span class="link-sweep">{post.data.title}</span>
+                  {post.data.badge && <span class="badge badge-secondary badge-sm ml-2 align-middle">{post.data.badge}</span>}
+                </h3>
+                {post.data.description && post.data.description !== post.data.title && (
+                  <p class="mt-1 text-sm leading-relaxed text-base-content/60">{post.data.description}</p>
+                )}
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))
+}

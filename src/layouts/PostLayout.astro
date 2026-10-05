@@ -2,45 +2,107 @@
 import { type BlogSchema } from "../content/config";
 import BaseLayout from "./BaseLayout.astro";
 import dayjs from "dayjs";
-import localizedFormat from "dayjs/plugin/localizedFormat";
 import { Image } from "astro:assets";
+import Comments from "../components/Comments.astro";
 
-export interface Props extends BlogSchema {}
+interface PostLink { title: string; slug: string }
+export interface Props extends BlogSchema {
+  minutes?: number;
+  newer?: PostLink;
+  older?: PostLink;
+}
 
-const { title, description, pubDate, updatedDate, heroImage, badge, tags = [] } = Astro.props;
-dayjs.extend(localizedFormat);
-const displayDate = dayjs(pubDate).format("ll")
+const { title, description, pubDate, updatedDate, heroImage, badge, tags = [], minutes, newer, older } = Astro.props;
+const displayDate = dayjs(pubDate).format("YYYY 年 M 月 D 日")
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
-<BaseLayout title={title} description={description} image={heroImage?.src}, ogType="article">
-  <main class="md:flex md:justify-center">
-    <article class="prose prose-lg max-w-[750px] prose-img:mx-auto">
-      {heroImage && <Image src={heroImage} alt={title} class="w-full mb-6" />}
-      <h1 class="title my-2 text-4xl font-bold">{title}</h1>
-      {pubDate && <time>{displayDate}</time>}
-      <br />
-      {badge && <div class="badge badge-secondary my-1">{badge}</div>}
+<BaseLayout title={title} description={description} image={heroImage?.src} ogType="article" sideBarActiveItemID="blog">
+  <!-- 阅读进度条，紧贴顶栏下沿 -->
+  <div class="pointer-events-none fixed inset-x-0 top-16 z-30 h-[2px]" aria-hidden="true">
+    <div id="reading-progress" class="h-full origin-left scale-x-0 bg-primary/70"></div>
+  </div>
+
+  <article>
+    <header class="mb-10">
+      <a href={`${base}blog/`} class="text-sm text-base-content/50 transition-colors hover:text-primary">← 博客</a>
+      <h1 class="mt-5 text-3xl font-bold leading-tight tracking-tight md:text-4xl">
+        {title}
+        {badge && <span class="badge badge-secondary ml-2 align-middle">{badge}</span>}
+      </h1>
+      <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-base-content/50">
+        {pubDate && <time datetime={pubDate.toISOString()}>{displayDate}</time>}
+        {minutes && <><span aria-hidden="true">·</span><span>约 {minutes} 分钟读完</span></>}
+        {updatedDate && <><span aria-hidden="true">·</span><span>更新于 {updatedDate}</span></>}
+      </div>
       {
-        tags &&
-          tags.map((tag) => (
-            <a href={`${base}blog/tag/${tag}`} class="badge badge-outline ml-2 no-underline">
-              {tag}
-            </a>
-          ))
-      }
-      {
-        updatedDate && (
-          <div>
-            {" "}
-            最后更新于 <time>{updatedDate}</time>{" "}
+        tags.length > 0 && (
+          <div class="mt-4 flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <a href={`${base}blog/tag/${tag}`} class="rounded-full bg-base-200 px-2.5 py-0.5 text-xs text-base-content/65 transition-colors hover:bg-base-300 hover:text-base-content">
+                #{tag}
+              </a>
+            ))}
           </div>
         )
       }
-      <div class="divider my-2"></div>
+      {heroImage && <Image src={heroImage} alt={title} class="mt-8 w-full rounded-xl" />}
+    </header>
+
+    <div class="prose prose-cjk max-w-none md:prose-lg prose-img:mx-auto prose-headings:font-semibold">
       <slot />
-    </article>
-  </main>
+    </div>
+  </article>
+
+  {
+    (newer || older) && (
+      <nav class="mt-16 grid gap-3 border-t border-base-content/10 pt-8 sm:grid-cols-2">
+        {older ? (
+          <a href={`${base}blog/${older.slug}`} class="group rounded-xl border border-base-content/10 p-4 transition hover:border-primary/40">
+            <div class="text-xs text-base-content/45">← 上一篇</div>
+            <div class="mt-1 font-medium transition-colors group-hover:text-primary">{older.title}</div>
+          </a>
+        ) : <div class="hidden sm:block" />}
+        {newer && (
+          <a href={`${base}blog/${newer.slug}`} class="group rounded-xl border border-base-content/10 p-4 text-right transition hover:border-primary/40">
+            <div class="text-xs text-base-content/45">下一篇 →</div>
+            <div class="mt-1 font-medium transition-colors group-hover:text-primary">{newer.title}</div>
+          </a>
+        )}
+      </nav>
+    )
+  }
+
+  <Comments />
+
+  <script>
+    // 模块脚本只执行一次，所以每次换页后（astro:page-load）都重新查找进度条
+    let bar: HTMLElement | null = null;
+    let ticking = false;
+    const HEADER_HEIGHT = 64; // 对应顶栏的 h-16
+    const update = () => {
+      ticking = false;
+      if (!bar) return;
+      const article = document.querySelector("article");
+      if (!article) return;
+      const rect = article.getBoundingClientRect();
+      const total = rect.height - window.innerHeight + HEADER_HEIGHT;
+      const progress = total > 0 ? Math.min(1, Math.max(0, (HEADER_HEIGHT - rect.top) / total)) : 1;
+      bar.style.transform = `scaleX(${progress})`;
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    document.addEventListener("astro:page-load", () => {
+      bar = document.getElementById("reading-progress");
+      update();
+    });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+  </script>
 
   <script is:inline type="module">
     const mermaidBlocks = document.querySelectorAll(
@@ -53,7 +115,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       mermaid.initialize({
         startOnLoad: false,
         securityLevel: "strict",
-        theme: document.documentElement.dataset.theme === "dark" ? "dark" : "neutral",
+        theme: document.documentElement.dataset.theme === "ink" ? "dark" : "neutral",
       });
 
       let index = 0;

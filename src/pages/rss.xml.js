@@ -1,18 +1,22 @@
 import rss from "@astrojs/rss";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../config";
-import { getCollection } from "astro:content";
+import { getSortedPosts } from "../lib/posts";
+import createSlug from "../lib/createSlug";
 
 export async function GET(context) {
-  const blog = await getCollection("blog");
+  const posts = await getSortedPosts();
+  const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   return rss({
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    site: import.meta.env.SITE,
-    items: blog.map((post) => ({
+    site: new URL(base, context.site).href,
+    items: posts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.pubDate,
       description: post.data.description,
-      link: `/blog/${post.slug}/`,
+      // 与 blog/[slug].astro 的路由保持一致，并带上 base 前缀
+      link: `${base}blog/${createSlug(post.data.title, post.slug)}/`,
     })),
+    customData: "<language>zh-CN</language>",
   });
 }

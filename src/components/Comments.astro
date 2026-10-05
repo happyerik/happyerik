@@ -1,0 +1,54 @@
+---
+import { GISCUS } from "../config";
+
+const enabled = Boolean(GISCUS.repoId && GISCUS.categoryId);
+---
+
+{
+  enabled && (
+    <section class="mt-16 border-t border-base-content/10 pt-8">
+      <h2 class="mb-6 text-lg font-semibold">评论</h2>
+      <div
+        class="giscus-container"
+        data-repo={GISCUS.repo}
+        data-repo-id={GISCUS.repoId}
+        data-category={GISCUS.category}
+        data-category-id={GISCUS.categoryId}
+      />
+    </section>
+  )
+}
+
+<!-- ViewTransitions 不会重复执行相同的内联脚本，所以挂在 astro:page-load 上（首次加载和每次换页都会触发） -->
+<script is:inline>
+  if (!window.__giscusMountBound) {
+    window.__giscusMountBound = true;
+    const mount = () => {
+      const container = document.querySelector(".giscus-container");
+      if (!container || container.childElementCount > 0) return;
+
+      const s = document.createElement("script");
+      s.src = "https://giscus.app/client.js";
+      s.async = true;
+      s.crossOrigin = "anonymous";
+      const attrs = {
+        repo: container.dataset.repo,
+        "repo-id": container.dataset.repoId,
+        category: container.dataset.category,
+        "category-id": container.dataset.categoryId,
+        mapping: "pathname",
+        strict: "1",
+        "reactions-enabled": "1",
+        "emit-metadata": "0",
+        "input-position": "top",
+        theme: document.documentElement.dataset.theme === "ink" ? "transparent_dark" : "light",
+        lang: "zh-CN",
+        loading: "lazy",
+      };
+      for (const [k, v] of Object.entries(attrs)) s.setAttribute(`data-${k}`, v);
+      container.appendChild(s);
+    };
+    document.addEventListener("astro:page-load", mount);
+    mount();
+  }
+</script>

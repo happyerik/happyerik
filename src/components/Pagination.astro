@@ -1,0 +1,14 @@
+---
+const { prev, next } = Astro.props;
+const linkClass =
+  "inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content";
+---
+
+{
+  (prev || next) && (
+    <nav class="mt-10 flex justify-between border-t border-base-content/10 pt-6">
+      {prev ? <a href={prev} class={linkClass}>← 较新的文章</a> : <span />}
+      {next ? <a href={next} class={linkClass}>较旧的文章 →</a> : <span />}
+    </nav>
+  )
+}
