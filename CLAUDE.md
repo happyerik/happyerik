@@ -81,8 +81,9 @@ Use `astro:assets` `<Image />` with explicit `width`, `height`, and `format="web
 
 - Page transitions: `BaseLayout.astro` gives `<main>` a custom `transition:animate` (fade-out / fade-up keyframes in `global.css`); the header has `transition:animate="none"` so it stays still.
 - Because of ViewTransitions, bundled `<script>`s run only once and identical inline scripts are not re-run on navigation — per-page init must hang off `astro:page-load` (see the reading progress bar in `PostLayout.astro`, `Comments.astro`, and the home page point cloud).
+- Site-wide ambient background: `.ambient` in `BaseLayout.astro` (styles in `global.css`) — three theme-colored radial-gradient glows drifting slowly via `transform`, `transition:persist` so it doesn't restart on navigation. It sits at `z-index: -1`, which is why the page background color lives on `<html>` rather than `<body>` (a `<body>` background would paint over it).
 - `.reveal` (+ `style="--i: n"`) staggers entrance; `.link-sweep` is the hover underline. All motion is disabled under `prefers-reduced-motion`.
-- Home avatar is a WebGL point cloud sampled from `public/chali.jpg` (`src/scripts/catCloud.ts`); it falls back to the static `<img>` without WebGL or with reduced motion, pauses off-screen, and is destroyed on `astro:before-swap`.
+- Home avatar is a WebGL point cloud sampled from `public/chali.jpg` (`src/scripts/catCloud.ts`); it falls back to the static `<img>` without WebGL or with reduced motion, pauses off-screen, and is destroyed on `astro:before-swap`. `404.astro` reuses it with `{ scattered: true }` (the cat falls apart; hover pulls nearby particles back, press-and-hold reassembles it). The two pages use different element ids (`cat-*` vs `lost-*`) because both pages' scripts stay registered under ViewTransitions.
 
 ### RSS
 

@@ -23,7 +23,7 @@ const pageTransition = { forwards: pageAnim, backwards: pageAnim };
 ---
 
 <!doctype html>
-<html lang="zh-CN" data-theme="paper">
+<html lang="zh-CN" data-theme="paper" class="bg-base-100">
   <head>
     <BaseHead title={title} description={description} image={image} ogType={ogType} />
     <!-- 尽早确定主题，避免深色模式下首屏闪白；ViewTransitions 换页后需要重新应用 -->
@@ -43,7 +43,13 @@ const pageTransition = { forwards: pageAnim, backwards: pageAnim };
     </script>
     {TRANSITION_API && <ViewTransitions />}
   </head>
-  <body class="flex min-h-screen flex-col bg-base-100 text-base-content">
+  <body class="flex min-h-screen flex-col text-base-content">
+    <!-- 背景柔光：几团主题色光晕缓慢漂移，样式见 global.css 的 .ambient；persist 让换页时动画不重新开始 -->
+    <div class="ambient" aria-hidden="true" transition:persist="ambient">
+      <span class="ambient-glow ambient-glow-1"></span>
+      <span class="ambient-glow ambient-glow-2"></span>
+      <span class="ambient-glow ambient-glow-3"></span>
+    </div>
     <Header activeItemID={sideBarActiveItemID} />
     <main
       class="mx-auto w-full max-w-3xl flex-1 px-5 pb-24 pt-10 md:px-6 md:pt-14"

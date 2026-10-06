@@ -118,7 +118,62 @@ html {
     animation: icon-spin 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
+/* 背景柔光：固定在正文之后，几团主题色光晕缓慢漂移。
+   用径向渐变自然淡出边缘（不用 filter: blur，省性能），只动 transform，交给合成层 */
+.ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+.ambient-glow {
+    position: absolute;
+    border-radius: 9999px;
+    will-change: transform;
+    animation: ambient-drift ease-in-out infinite alternate;
+}
+.ambient-glow-1 {
+    top: -22vmax;
+    left: -18vmax;
+    width: 62vmax;
+    height: 62vmax;
+    background: radial-gradient(closest-side, oklch(var(--p) / 0.16), transparent);
+    animation-duration: 46s;
+}
+.ambient-glow-2 {
+    top: 18vh;
+    right: -24vmax;
+    width: 52vmax;
+    height: 52vmax;
+    background: radial-gradient(closest-side, oklch(var(--s) / 0.11), transparent);
+    animation-duration: 58s;
+    animation-delay: -20s;
+}
+.ambient-glow-3 {
+    bottom: -26vmax;
+    left: 8vw;
+    width: 58vmax;
+    height: 58vmax;
+    background: radial-gradient(closest-side, oklch(var(--p) / 0.12), transparent);
+    animation-duration: 52s;
+    animation-delay: -35s;
+}
+/* 深色下光晕在墨色上更显眼，整体再收一点 */
+[data-theme="ink"] .ambient {
+    opacity: 0.75;
+}
+@keyframes ambient-drift {
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(9vmax, 7vmax, 0) scale(1.12); }
+    100% { transform: translate3d(-5vmax, 12vmax, 0) scale(0.94); }
+}
+
 @media (prefers-reduced-motion: reduce) {
+    /* 光晕保留，但不漂移（下面的全局规则只是把动画缩到极短，对无限循环的动画不够） */
+    .ambient-glow {
+        animation: none !important;
+    }
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-delay: 0ms !important;

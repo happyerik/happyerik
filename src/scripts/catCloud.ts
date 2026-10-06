@@ -3,6 +3,7 @@
  * - 照片按网格采样，裁成圆形；z 由球面隆起 + 亮度微调得到，转动时有立体感
  * - 开场粒子从四周聚拢成图；平时缓慢摆动，跟随鼠标倾斜，靠近时粒子被推开
  * - 粒子位移全部在顶点着色器里算，CPU 每帧只更新几个 uniform
+ * - scattered 模式（404 页）：先拼好再散架，粒子飘满画布；鼠标附近的粒子被吸回原位，按住则整只猫拼回来
  */
 
 const VERT = `
@@ -17,14 +18,21 @@ uniform vec2 uMouse;
 uniform float uMouseStrength;
 uniform float uPointSize;
 uniform float uLight;
+uniform float uScatter;
+uniform float uGather;
 varying vec3 vColor;
 varying float vAlpha;
 
 void main() {
+  // 散架模式下，聚拢程度取「整体聚拢」和「鼠标附近局部聚拢」中较大的那个
+  float nearMouse = uMouseStrength * smoothstep(0.75, 0.15, length(aPos.xy * 0.82 - uMouse));
+  float g = mix(uIntro, max(uGather, nearMouse), uScatter);
   // 每个粒子开场延迟不同，聚拢更有层次
-  float t = clamp(uIntro * 1.4 - aRand * 0.4, 0.0, 1.0);
+  float t = clamp(g * 1.4 - aRand * 0.4, 0.0, 1.0);
   t = 1.0 - pow(1.0 - t, 3.0);
-  vec3 p = mix(aStart, aPos, t);
+  // 散开的粒子像灰尘一样缓慢漂浮
+  vec3 drift = vec3(sin(uTime * 0.31 + aRand * 19.0), cos(uTime * 0.27 + aRand * 13.0), sin(uTime * 0.23 + aRand * 7.0)) * 0.08 * uScatter;
+  vec3 p = mix(aStart + drift, aPos, t);
   p.z += sin(uTime * 1.3 + aRand * 6.2831) * 0.018;
 
   float cy = cos(uRot.y), sy = sin(uRot.y);
@@ -38,7 +46,7 @@ void main() {
   // 鼠标附近的粒子被柔和地推开，越近推得越远，并略微放大
   vec2 d = proj - uMouse;
   float dist = length(d);
-  float push = uMouseStrength * pow(smoothstep(0.45, 0.0, dist), 2.0);
+  float push = uMouseStrength * pow(smoothstep(0.45, 0.0, dist), 2.0) * (1.0 - uScatter);
   proj += d / max(dist, 1e-4) * push * 0.07;
 
   gl_Position = vec4(proj, 0.0, 1.0);
@@ -47,7 +55,8 @@ void main() {
   vColor = clamp((aColor - 0.5) * 1.15 + 0.5, 0.0, 1.0) * mix(1.0, 0.85, uLight);
   // 外圈渐隐，轮廓不是生硬的圆
   float edge = smoothstep(1.0, 0.72, length(aPos.xy));
-  vAlpha = smoothstep(0.0, 0.25, t) * mix(0.15, 1.0, edge);
+  // 散架时飘着的粒子也要看得见，只是淡一些
+  vAlpha = mix(smoothstep(0.0, 0.25, t), mix(0.8, 1.0, t), uScatter) * mix(0.15, 1.0, edge);
 }
 `;
 
@@ -81,7 +90,7 @@ function loadImage(src: string) {
 }
 
 /** 把照片居中裁成正方形后按 grid×grid 采样，只保留圆内的点 */
-function samplePhoto(img: HTMLImageElement, grid: number) {
+function samplePhoto(img: HTMLImageElement, grid: number, scattered: boolean) {
   const c = document.createElement("canvas");
   c.width = c.height = grid;
   const ctx = c.getContext("2d")!;
@@ -105,11 +114,17 @@ function samplePhoto(img: HTMLImageElement, grid: number) {
       pos.push(nx, ny, 0.38 * Math.sqrt(1 - r2) + (lum - 0.5) * 0.12);
       color.push(r, g, b);
 
-      // 起点：随机散布在外围的球壳上
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(Math.random() * 2 - 1);
-      const radius = 1.6 + Math.random() * 1.2;
-      start.push(radius * Math.sin(phi) * Math.cos(theta), radius * Math.sin(phi) * Math.sin(theta), radius * Math.cos(phi) * 0.5);
+      if (scattered) {
+        // 散架后的位置：在比头像略大的圆盘里均匀散开，散落在不同深度
+        const a = Math.random() * Math.PI * 2, d = 1.1 * Math.sqrt(Math.random());
+        start.push(d * Math.cos(a), d * Math.sin(a), (Math.random() * 2 - 1) * 0.6);
+      } else {
+        // 起点：随机散布在外围的球壳上
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(Math.random() * 2 - 1);
+        const radius = 1.6 + Math.random() * 1.2;
+        start.push(radius * Math.sin(phi) * Math.cos(theta), radius * Math.sin(phi) * Math.sin(theta), radius * Math.cos(phi) * 0.5);
+      }
       rand.push(Math.random());
     }
   }
@@ -117,13 +132,18 @@ function samplePhoto(img: HTMLImageElement, grid: number) {
 }
 
 /** 初始化点云，返回销毁函数；不支持 WebGL 时返回 null（页面保留静态头像） */
-export async function mountCatCloud(canvas: HTMLCanvasElement, photoUrl: string, onReady: () => void) {
+export async function mountCatCloud(
+  canvas: HTMLCanvasElement,
+  photoUrl: string,
+  onReady: () => void,
+  { scattered = false }: { scattered?: boolean } = {},
+) {
   const gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: false, antialias: true });
   if (!gl) return null;
 
   const img = await loadImage(photoUrl);
   const small = window.matchMedia("(max-width: 640px)").matches;
-  const cloud = samplePhoto(img, small ? 56 : 84);
+  const cloud = samplePhoto(img, small ? 56 : 84, scattered);
 
   const prog = gl.createProgram()!;
   gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT));
@@ -148,7 +168,8 @@ export async function mountCatCloud(canvas: HTMLCanvasElement, photoUrl: string,
   const u = (name: string) => gl.getUniformLocation(prog, name);
   const uTime = u("uTime"), uIntro = u("uIntro"), uRot = u("uRot");
   const uMouse = u("uMouse"), uMouseStrength = u("uMouseStrength"), uPointSize = u("uPointSize");
-  const uLight = u("uLight");
+  const uLight = u("uLight"), uScatter = u("uScatter"), uGather = u("uGather");
+  gl.uniform1f(uScatter, scattered ? 1 : 0);
 
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -165,7 +186,7 @@ export async function mountCatCloud(canvas: HTMLCanvasElement, photoUrl: string,
   resize();
 
   // 鼠标/触摸：位置换算到画布的裁剪空间（-1..1），画布外也用于倾斜
-  const pointer = { x: 0, y: 0, inside: false };
+  const pointer = { x: 0, y: 0, inside: false, down: false };
   const onPointer = (e: PointerEvent) => {
     const r = canvas.getBoundingClientRect();
     pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1;
@@ -173,11 +194,18 @@ export async function mountCatCloud(canvas: HTMLCanvasElement, photoUrl: string,
     pointer.inside = Math.abs(pointer.x) < 1.1 && Math.abs(pointer.y) < 1.1;
   };
   const onLeave = () => (pointer.inside = false);
+  // 散架模式：在画布上按住时整只猫拼回来
+  const onPointerDown = (e: PointerEvent) => {
+    onPointer(e);
+    pointer.down = pointer.inside;
+  };
   // 触摸抬起后没有后续 pointermove，需要主动结束推开效果
   const onPointerEnd = (e: PointerEvent) => {
+    pointer.down = false;
     if (e.pointerType !== "mouse") onLeave();
   };
   window.addEventListener("pointermove", onPointer, { passive: true });
+  window.addEventListener("pointerdown", onPointerDown, { passive: true });
   window.addEventListener("pointerup", onPointerEnd, { passive: true });
   window.addEventListener("pointercancel", onPointerEnd, { passive: true });
   document.addEventListener("pointerleave", onLeave);
@@ -191,7 +219,7 @@ export async function mountCatCloud(canvas: HTMLCanvasElement, photoUrl: string,
   });
   io.observe(canvas);
 
-  const state = { mx: 0, my: 0, strength: 0, tiltX: 0, tiltY: 0 };
+  const state = { mx: 0, my: 0, strength: 0, tiltX: 0, tiltY: 0, gather: 1 };
   const t0 = performance.now();
   let raf = 0;
   let readyCalled = false;
@@ -207,10 +235,14 @@ export async function mountCatCloud(canvas: HTMLCanvasElement, photoUrl: string,
     const clamp = (v: number) => Math.max(-1.5, Math.min(1.5, v));
     state.tiltY += (clamp(pointer.x) * 0.35 - state.tiltY) * 0.05;
     state.tiltX += (-clamp(pointer.y) * 0.25 - state.tiltX) * 0.05;
+    // 散架模式：开场先完整展示约 0.9 秒再散开，之后按住才整体聚拢
+    const gatherTarget = t < 0.9 || pointer.down ? 1 : 0;
+    state.gather += (gatherTarget - state.gather) * (gatherTarget ? 0.08 : 0.025);
 
     gl!.clear(gl!.COLOR_BUFFER_BIT);
     gl!.uniform1f(uTime, t);
     gl!.uniform1f(uIntro, Math.min(1, t / 2.2));
+    gl!.uniform1f(uGather, state.gather);
     gl!.uniform2f(uRot, Math.sin(t * 0.35) * 0.12 + state.tiltX, Math.sin(t * 0.45) * 0.3 + state.tiltY);
     gl!.uniform2f(uMouse, state.mx, state.my);
     gl!.uniform1f(uMouseStrength, state.strength);
@@ -229,6 +261,7 @@ export async function mountCatCloud(canvas: HTMLCanvasElement, photoUrl: string,
     cancelAnimationFrame(raf);
     io.disconnect();
     window.removeEventListener("pointermove", onPointer);
+    window.removeEventListener("pointerdown", onPointerDown);
     window.removeEventListener("pointerup", onPointerEnd);
     window.removeEventListener("pointercancel", onPointerEnd);
     document.removeEventListener("pointerleave", onLeave);
