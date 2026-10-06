@@ -18,14 +18,24 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       <p class="reveal mt-2 text-base text-base-content/70 sm:mt-3 sm:text-lg" style="--i: 1">
         开发者，3D x AI
       </p>
-      <a
-        href="mailto:zhangyong1102@gmail.com"
-        class="reveal mt-2 inline-flex items-center gap-1.5 break-all text-xs text-base-content/45 sm:mt-3 sm:text-sm transition-colors hover:text-primary"
-        style="--i: 2"
-      >
-        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-        zhangyong1102@gmail.com
-      </a>
+      <div class="reveal mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-base-content/45 sm:mt-3 sm:text-sm" style="--i: 2">
+        <a
+          href="mailto:zhangyong1102@gmail.com"
+          class="inline-flex items-center gap-1.5 break-all transition-colors hover:text-primary"
+        >
+          <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+          zhangyong1102@gmail.com
+        </a>
+        <a
+          href="https://scholar.google.com/citations?user=P_Wyr8kAAAAJ"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 whitespace-nowrap transition-colors hover:text-primary"
+        >
+          <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4L2 9l10 5 10-5-10-5zM6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5M22 9v5" /></svg>
+          Google Scholar
+        </a>
+      </div>
     </div>
 
     <div class="relative -mr-2 h-[136px] w-[136px] shrink-0 sm:mr-0 sm:h-[260px] sm:w-[260px]" data-photo={`${base}chali.jpg`} id="cat-cloud-wrap">

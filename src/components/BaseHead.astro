@@ -1,6 +1,7 @@
 ---
 // 在此导入 global.css 文件，使其通过 <BaseHead /> 组件包含在所有页面中。
 import '../styles/global.css';
+import { SITE_TITLE } from '../config';
 
 export interface Props {
 	title: string;
@@ -11,18 +12,21 @@ export interface Props {
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const { title, description, image = `${base}social_img.webp`, ogType = 'website' } = Astro.props;
+// 浏览器标签统一为「页面名 · 站名」，首页只显示站名；分享卡片（og/twitter）仍用页面原标题
+const docTitle = title === SITE_TITLE ? title : `${title} · ${SITE_TITLE}`;
 ---
 
 <!-- 全局元数据 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
-<link rel="alternate" type="application/rss+xml" title="happyerik's page" href={`${base}rss.xml`} />
+<link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+<link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href={`${base}rss.xml`} />
 <meta name="generator" content={Astro.generator} />
 
 <!-- 主要元标签 -->
-<title>{title}</title>
-<meta name="title" content={title} />
+<title>{docTitle}</title>
+<meta name="title" content={docTitle} />
 <meta name="description" content={description} />
 
 <!-- 开放图谱 / Facebook -->
