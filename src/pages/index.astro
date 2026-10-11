@@ -4,7 +4,6 @@ import PostList from "../components/PostList.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import { getSortedPosts } from "../lib/posts";
 import { projects } from "../data/projects";
-import { apps } from "../data/apps";
 
 const posts = await getSortedPosts();
 const latestPosts = posts.slice(0, 5);
@@ -73,16 +72,6 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     </div>
     <div class="grid gap-3">
       {projects.map((p, i) => <div class="reveal" style={`--i: ${i + 5}`}><ProjectCard {...p} /></div>)}
-    </div>
-  </section>
-
-  <section class="mt-16">
-    <div class="mb-4 flex items-baseline justify-between">
-      <h2 class="text-lg font-semibold">应用</h2>
-      <a href={`${base}apps/`} class="text-sm text-base-content/50 transition-colors hover:text-primary">全部应用 →</a>
-    </div>
-    <div class="grid gap-3">
-      {apps.map((app, i) => <div class="reveal" style={`--i: ${i + 6}`}><ProjectCard {...app} /></div>)}
     </div>
   </section>
 
